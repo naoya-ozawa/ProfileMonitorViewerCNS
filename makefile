@@ -7,3 +7,6 @@ imshow:	imshow.cpp
 matrix:	matrix.cpp
 	`root-config --cxx --cflags` -o matrix matrix.cpp -I/usr/local/include/opencv2 -I/usr/local/include/opencv -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc -lopencv_highgui `root-config --glibs` -lASImage
 
+histoimage:	histoimage.cpp
+	`root-config --cxx --cflags` -o histoimage histoimage.cpp -I/usr/local/include/opencv2 -I/usr/local/include/opencv -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc -lopencv_highgui `root-config --glibs` -lASImage
+
