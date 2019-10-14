@@ -1,5 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <cmath>
+#include <TMath.h>
 #include <TCanvas.h>
 #include <TPad.h>
 #include <TStyle.h>
@@ -7,6 +9,12 @@
 #include <TH2D.h>
 #include <TPolyLine.h>
 #include <TRint.h>
+
+double round_off(double value, double position){
+	double multiplied = value * TMath::Power(10.,position);
+	double rounded = std::round(multiplied);
+	return rounded / TMath::Power(10.,position);
+}
 
 int main(int argc, char** argv){
 
@@ -22,20 +30,20 @@ int main(int argc, char** argv){
 
 	// Read image into histo
 	//
-	TASImage *cv_image = new TASImage(imagepath);
-	UInt_t yPixels = cv_image->GetHeight();
-	UInt_t xPixels = cv_image->GetWidth();
-	UInt_t *argb = cv_image->GetArgbArray();
-	TH2D *h = new TH2D("h","Histogram",xPixels,-1,1,yPixels,-1,1);
+	TASImage *image = new TASImage(imagepath);
+	UInt_t yPixels = image->GetHeight();
+	UInt_t xPixels = image->GetWidth();
+	UInt_t *argb = image->GetArgbArray();
+	TH2D *histo = new TH2D("histo","Histogram",xPixels,-1,1,yPixels,-1,1);
 	for (int row=0; row<xPixels; ++row){
 		for (int col=0; col<yPixels; ++col){
 			int index = col*xPixels+row;
 			float gray = float(argb[index]&0xff)/256;
-			h->SetBinContent(row+1,yPixels-col,gray);
+			histo->SetBinContent(row+1,yPixels-col,gray);
 		}
 	}
 
-	cv_image->DrawRectangle(topleft_x,topleft_y,width,height,"#00ff00",3);
+	image->DrawRectangle(topleft_x,topleft_y,width,height,"#00ff00",3);
 
 	TRint rootapp("app",&argc,argv);
 
@@ -45,28 +53,59 @@ int main(int argc, char** argv){
 	// Draw original image with ROI rectangle
 	c1->cd(1);
 
-	cv_image->Draw();
+	image->Draw();
+
 
 	// Draw converted histogram with ROI rectangle
 	c1->cd(2);
 
 	TStyle *gStyle = new TStyle();
 	gStyle->SetPalette(53);
-	h->Draw("COLZ");
+	histo->Draw("COLZ");
 
-	TPolyLine *roihist = new TPolyLine(5);
+	TPolyLine *roiframe = new TPolyLine(5);
 	double x_1 = 2.0*double(topleft_x)/double(xPixels) - 1.0;
 	double y_1 = 2.0*double(yPixels-topleft_y)/double(yPixels) - 1.0;
 	double ww = 2.0*double(width)/double(xPixels);
 	double hh = 2.0*double(height)/double(yPixels);
-	roihist->SetPoint(0,x_1,y_1);
-	roihist->SetPoint(1,x_1+ww,y_1);
-	roihist->SetPoint(2,x_1+ww,y_1-hh);
-	roihist->SetPoint(3,x_1,y_1-hh);
-	roihist->SetPoint(4,x_1,y_1);
-	roihist->SetLineColor(3);
-	roihist->SetLineWidth(3);
-	roihist->Draw();
+	roiframe->SetPoint(0,x_1,y_1);
+	roiframe->SetPoint(1,x_1+ww,y_1);
+	roiframe->SetPoint(2,x_1+ww,y_1-hh);
+	roiframe->SetPoint(3,x_1,y_1-hh);
+	roiframe->SetPoint(4,x_1,y_1);
+	roiframe->SetLineColor(3);
+	roiframe->SetLineWidth(3);
+	roiframe->Draw();
+
+//	std::cout << "(x_1,y_1) = (" << x_1 << ", " << y_1 << ")" << std::endl;
+
+	
+	// Draw close-up hist of the ROI region
+	c1->cd(3);
+
+//	TH2D *roi = new TH2D("roi","Region of Interest",width,x_1,x_1+width,height,y_1-height,y_1);
+	double rounded_x_1 = round_off(x_1,3);
+	double rounded_y_1 = round_off(y_1,3);
+	double rounded_ww = round_off(ww,3);
+	double rounded_hh = round_off(hh,3);
+	TH2D *roi = new TH2D("roi","Region of Interest",width,rounded_x_1,rounded_x_1+rounded_ww,height,rounded_y_1-rounded_hh,rounded_y_1);
+	for (int i=1; i<=xPixels; ++i){
+		for (int j=1; j<=yPixels; ++j){
+			double val = histo->GetBinContent(i,j);
+			double x_c = 2.0*double(i)/double(xPixels)-1.0;
+			double y_c = 2.0*double(j)/double(yPixels)-1.0;
+			bool x_in = (x_c > x_1) && (x_c < x_1+ww);
+			bool y_in = (y_c < y_1) && (y_c > y_1-hh);
+			bool in_roi = x_in && y_in;
+			if (in_roi){
+				roi->Fill(x_c,y_c,val);
+			}
+		}
+	}
+
+	roi->Draw("COLZ");
+
+
 
 	c1->Update();
 	c1->Modified();
