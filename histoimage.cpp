@@ -8,6 +8,7 @@
 #include <TASImage.h>
 #include <TH2D.h>
 #include <TPolyLine.h>
+#include <TLatex.h>
 #include <TRint.h>
 
 double round_off(double value, double position){
@@ -105,6 +106,17 @@ int main(int argc, char** argv){
 
 	roi->Draw("COLZ");
 
+
+	// Display integral of ROI histo
+	c1->cd(4);
+
+	double integ = roi->Integral();
+
+	TLatex l;
+	l.SetTextAlign(12);
+	l.SetTextSize(0.05);
+	l.DrawLatex(0.15,0.8,"Net Brightness in ROI");
+	l.DrawLatex(0.2,0.7,Form("%g [a.u.]",integ));
 
 
 	c1->Update();
