@@ -24,8 +24,14 @@
 #    include <pylon/PylonGUI.h>
 #endif
 
+
+// Include files to use ROOT libraries
+//#include <TH2D.h>
+//#include <TRint.h>
+
+
 // Namespace for using pylon objects.
-using namespace Pylon;
+//using namespace Pylon;
 
 // Namespace for using cout.
 using namespace std;
@@ -35,16 +41,23 @@ static const uint32_t c_countOfImagesToGrab = 100;
 
 int main(int argc, char* argv[])
 {
+
+//    TRint rootapp("app",&argc,argv);
+
+//    // Create the histogram to be filled
+//    TH2D *hist_image = new TH2D("hist_image","Image",1282,0.,1282.,1026,0.,1026.);
+
+
     // The exit code of the sample application.
     int exitCode = 0;
 
     // Before using any pylon methods, the pylon runtime must be initialized. 
-    PylonInitialize();
+    Pylon::PylonInitialize();
 
     try
     {
         // Create an instant camera object with the camera device found first.
-        CInstantCamera camera( CTlFactory::GetInstance().CreateFirstDevice());
+	Pylon::CInstantCamera camera( Pylon::CTlFactory::GetInstance().CreateFirstDevice());
 
         // Print the model name of the camera.
         cout << "Using device " << camera.GetDeviceInfo().GetModelName() << endl;
@@ -59,14 +72,14 @@ int main(int argc, char* argv[])
         camera.StartGrabbing( c_countOfImagesToGrab);
 
         // This smart pointer will receive the grab result data.
-        CGrabResultPtr ptrGrabResult;
+	Pylon::CGrabResultPtr ptrGrabResult;
 
         // Camera.StopGrabbing() is called automatically by the RetrieveResult() method
         // when c_countOfImagesToGrab images have been retrieved.
         while ( camera.IsGrabbing())
         {
             // Wait for an image and then retrieve it. A timeout of 5000 ms is used.
-            camera.RetrieveResult( 5000, ptrGrabResult, TimeoutHandling_ThrowException);
+            camera.RetrieveResult( 5000, ptrGrabResult, Pylon::TimeoutHandling_ThrowException);
 
             // Image grabbed successfully?
             if (ptrGrabResult->GrabSucceeded())
@@ -76,6 +89,16 @@ int main(int argc, char* argv[])
                 cout << "SizeY: " << ptrGrabResult->GetHeight() << endl;
                 const uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
                 cout << "Gray value of first pixel: " << (uint32_t) pImageBuffer[0] << endl << endl;
+
+//		// Display the image data onto the 2d-histogram
+//		for (int i=0; i<1282; ++i){
+//		    for (int j=0; j<1026; ++j){
+//			Int_t bin = hist_image->GetBin(i+1,j+1);
+//			hist_image->SetBinContent(bin,(uint32_t) pImageBuffer[bin]);
+//		    }
+//		}
+//		hist_image->Draw("COLZ");
+
 
 #ifdef PYLON_WIN_BUILD
                 // Display the grabbed image.
@@ -88,7 +111,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-    catch (const GenericException &e)
+    catch (const Pylon::GenericException &e)
     {
         // Error handling.
         cerr << "An exception occurred." << endl
@@ -101,7 +124,10 @@ int main(int argc, char* argv[])
     while( cin.get() != '\n');
 
     // Releases all pylon resources. 
-    PylonTerminate();  
+    Pylon::PylonTerminate();  
+
+
+//    rootapp.Run();
 
     return exitCode;
 }
