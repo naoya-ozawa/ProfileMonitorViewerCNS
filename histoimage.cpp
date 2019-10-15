@@ -1,6 +1,4 @@
-#include <opencv2/opencv.hpp>
 #include <iostream>
-#include <cmath>
 #include <TMath.h>
 #include <TCanvas.h>
 #include <TPad.h>
@@ -20,7 +18,8 @@ double round_off(double value, double position){
 int main(int argc, char** argv){
 
 	// Choose image to display
-	const char* imagepath = "./sample-images/Image__2019-10-02__17-35-26.png";
+//	const char* imagepath = "./sample-images/Image__2019-10-02__17-35-26.png"; // Beam On
+	const char* imagepath = "./sample-images/106793-17-direct__23113341__20191011_164312788_1.tiff"; // Beam Off 
 
 	// Set ROI
 	int topleft_x = 415;
@@ -30,7 +29,7 @@ int main(int argc, char** argv){
 
 
 	// Read image into histo
-	//
+
 	TASImage *image = new TASImage(imagepath);
 	UInt_t yPixels = image->GetHeight();
 	UInt_t xPixels = image->GetWidth();
