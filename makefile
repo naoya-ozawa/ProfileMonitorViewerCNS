@@ -16,3 +16,7 @@ matrix:	matrix.cpp
 histoimage:	histoimage.cpp
 	`root-config --cxx --cflags` -o histoimage histoimage.cpp -I/usr/local/include/opencv2 -I/usr/local/include/opencv -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_imgproc -lopencv_highgui `root-config --glibs` -lASImage
 
+Grab_Histogramize:	Grab_Histogramize.cpp
+	`root-config --cxx --cflags` -I/opt/pylon5/include -c -o Grab_Histogramize.o Grab_Histogramize.cpp `root-config --glibs`
+	g++ -Wl,--enable-new-dtags -Wl,-rpath,/opt/pylon5/lib64 -o Grab_Histogramize Grab_Histogramize.o -L/opt/pylon5/lib64 -Wl,-E -lpylonbase -lpylonutility -lGenApi_gcc_v3_1_Basler_pylon -lGCBase_gcc_v3_1_Basler_pylon
+	rm Grab_Histogramize.o
