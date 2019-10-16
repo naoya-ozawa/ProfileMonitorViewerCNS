@@ -22,6 +22,7 @@ import matplotlib.patches as patches
 
 import sys
 from datetime import datetime
+import time
 
 # Maximum grayscale value of the image
 maxscale = 255
@@ -33,8 +34,8 @@ width = 400
 height = 400
 angle = 0
 
-# Number of data points to display in the ROI brightness logger
-logging = 15
+# Logging time for ROI brightness display (in seconds)
+log_time = 15
 
 # Number of images to be grabbed.
 countOfImagesToGrab = 100
@@ -69,6 +70,7 @@ try:
     plt.ion()
 
     # Prepare brightness lists
+    time_start = time.time()
     time_elapsed = []
     roi_brightness = []
 
@@ -116,19 +118,20 @@ try:
             # Look at the time evolution of the ROI brightness
             plt.subplot(2,2,3)
             current_brightness = np.sum(img_roi, axis=None)
-            time_elapsed.extend([counter])
+            time_now = time.time() - time_start
+            time_elapsed.extend([time_now])
             roi_brightness.extend([current_brightness])
-            plt.plot(time_elapsed[-logging:],roi_brightness[-logging:],'xb-')
-            plt.xlim([counter-logging,counter])
+            plt.plot(time_elapsed,roi_brightness,'b-')
+            plt.xlim([time_now-log_time,time_now])
             plt.autoscale(True,axis='y')
-            plt.xlabel('Captured Frames')
+            plt.xlabel('Elapsed Time [s]')
             plt.ylabel('Brightness [a.u.]')
             plt.title('Brightness within the ROI')
 
             # Draw the Histo/Graph
 #            plt.tight_layout()
             plt.show()
-            plt.pause(0.5)
+            plt.pause(0.1)
 
         else:
             print("Error: ", grabResult.ErrorCode, grabResult.ErrorDescription)
