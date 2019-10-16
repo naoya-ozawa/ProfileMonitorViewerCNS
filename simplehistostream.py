@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib import colors
 import matplotlib.patches as patches
+from matplotlib.widgets import Button
 
 import sys
 from datetime import datetime
@@ -127,6 +128,18 @@ try:
             plt.xlabel('Elapsed Time [s]')
             plt.ylabel('Brightness [a.u.]')
             plt.title('Brightness within the ROI')
+            
+#            # Create a STOP button to stop acquisition
+#            plt.subplot(2,2,4)
+#            class Index(object):
+#                ind = 0
+#                def stop_acq(self, event):
+#                    self.ind += 1
+#                    raise SystemExit
+#            callback = Index()
+#            axstop = plt.axes([0.7,0.05,0.1,0.075])
+#            bstop = Button(axstop, 'STOP')
+#            bstop.on_clicked(callback.stop_acq)
 
             # Draw the Histo/Graph
 #            plt.tight_layout()
