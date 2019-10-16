@@ -16,9 +16,14 @@ from pypylon import genicam
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from matplotlib import colors
 
 import sys
-import time
+from datetime import datetime
+
+# Maximum grayscale value of the image
+maxscale = 255
 
 # Number of images to be grabbed.
 countOfImagesToGrab = 100
@@ -49,8 +54,6 @@ try:
     camera.StartGrabbingMax(countOfImagesToGrab)
 
     plt.ion()
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
 
     # Camera.StopGrabbing() is called automatically by the RetrieveResult() method
     # when c_countOfImagesToGrab images have been retrieved.
@@ -70,20 +73,16 @@ try:
             print("Entire image: ", img)
 
             # Draw histogramized image
-            sizeX = grabResult.Width
-            sizeY = grabResult.Height
-
-            x = np.array([1,2,3])
-            y = np.array([1,2,3])
-            w = np.array([[3,4,2],[5,2,6],[3,2,5]])
-            H = ax.hist2d(x,y,bins=[np.linspace(-0.5,3.5,4),np.linspace(-0.5,3.5,4)])
+            plt.matshow(img/maxscale,0)
+            current_time = datetime.strftime(datetime.now(),"%Y-%m-%d_%H-%M-%S-%f")
+            plt.title('Obtained Image (%s)'%current_time)
             if counter == 1:
-                fig.colorbar(H[3],ax=ax)
-            ax.set_title('Histo')
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
+                cmap = cm.get_cmap('jet',4)
+                bounds = np.linspace(0,1,21)
+                plt.colorbar(cmap=colors.ListedColormap(['b','g','y','r']),boundaries=bounds,norm=colors.BoundaryNorm(bounds,cmap.N))
+            plt.tick_params(axis='x',which='both',top=False,labeltop=False,labelbottom=True)
             plt.show()
-            plt.pause(0.5)
+            plt.pause(0.1)
 
         else:
             print("Error: ", grabResult.ErrorCode, grabResult.ErrorDescription)
