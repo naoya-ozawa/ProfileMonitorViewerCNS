@@ -20,10 +20,12 @@ import matplotlib.cm as cm
 from matplotlib import colors
 import matplotlib.patches as patches
 from matplotlib.widgets import Button
+from collections import deque
 
 import sys
 from datetime import datetime
 import time
+import gc
 
 # Maximum grayscale value of the image
 maxscale = 255
@@ -72,8 +74,8 @@ try:
 
     # Prepare brightness lists
     time_start = time.time()
-    time_elapsed = []
-    roi_brightness = []
+    time_elapsed = deque()
+    roi_brightness = deque()
 
     # Camera.StopGrabbing() is called automatically by the RetrieveResult() method
     # when c_countOfImagesToGrab images have been retrieved.
@@ -108,6 +110,8 @@ try:
             # Draw the Zoomed image in the ROI
             plt.subplot(2,2,2)
             img_roi = img[y_1:y_1+height+1, x_1:x_1+width+1]/maxscale
+            del img
+            gc.collect()
             plt.matshow(img_roi,0)
             plt.title('Region of Interest (x_1=%s, y_1=%s, w=%s, h=%s)'%(x_1,y_1,width,height))
             if counter == 1:
@@ -119,9 +123,15 @@ try:
             # Look at the time evolution of the ROI brightness
             plt.subplot(2,2,3)
             current_brightness = np.sum(img_roi, axis=None)
+            del img_roi
+            gc.collect()
             time_now = time.time() - time_start
-            time_elapsed.extend([time_now])
-            roi_brightness.extend([current_brightness])
+            time_elapsed.append(time_now)
+            roi_brightness.append(current_brightness)
+            if time_now > log_time:
+               time_elapsed.popleft()
+               roi_brightness.popleft()
+               gc.collect()
             plt.plot(time_elapsed,roi_brightness,'b-')
             plt.xlim([time_now-log_time,time_now])
             plt.autoscale(True,axis='y')
@@ -150,6 +160,8 @@ try:
             print("Error: ", grabResult.ErrorCode, grabResult.ErrorDescription)
         grabResult.Release()
     camera.Close()
+    time_elapsed.clear()
+    roi_brightness.clear()
 
 except genicam.GenericException as e:
     # Error handling.
