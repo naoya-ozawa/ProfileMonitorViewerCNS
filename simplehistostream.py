@@ -21,6 +21,7 @@ from matplotlib import colors
 import matplotlib.patches as patches
 from matplotlib.widgets import Button
 from collections import deque
+import matplotlib.animation as animation
 
 import sys
 from datetime import datetime
@@ -69,8 +70,11 @@ try:
     camera.StartGrabbingMax(countOfImagesToGrab)
 
     # Create figure
-    plt.figure()
-    plt.ion()
+    ax1 = plt.subplot(2,2,1)
+#    im1 = ax1.matshow()
+    ax2 = plt.subplot(2,2,2)
+#    im2 = ax2.matshow()
+    ax3 = plt.subplot(2,2,3)
 
     # Prepare brightness lists
     time_start = time.time()
@@ -86,75 +90,77 @@ try:
 
         # Image grabbed successfully?
         if grabResult.GrabSucceeded():
-            counter = counter + 1
-            # Access the image data.
-#            print("SizeX: ", grabResult.Width)
-#            print("SizeY: ", grabResult.Height)
-            img = grabResult.Array
-#            print("Gray value of first pixel: ", img[0, 0])
-#            print("Entire image: ", img)
+            def update(i):
+                # Access the image data.
+#               print("SizeX: ", grabResult.Width)
+#               print("SizeY: ", grabResult.Height)
+                img = grabResult.Array
+#               print("Gray value of first pixel: ", img[0, 0])
+#               print("Entire image: ", img)
 
-            # Draw histogramized image
-            plt.subplot(2,2,1)
-            plt.matshow(img,0)
-            current_time = datetime.strftime(datetime.now(),"%Y-%m-%d_%H-%M-%S-%f")
-            plt.title('Obtained Image (%s)'%current_time)
-            if counter == 1:
-                cmap = cm.get_cmap('jet',4)
-                bounds = np.linspace(0,maxscale,(maxscale+1)*20+1)
-                plt.colorbar(cmap=colors.ListedColormap(['b','g','y','r']),boundaries=bounds,norm=colors.BoundaryNorm(bounds,cmap.N))
-            plt.tick_params(axis='x',which='both',top=False,labeltop=False,labelbottom=True)
-            roi = patches.Rectangle((x_1,y_1),width,height,angle,linewidth=1,edgecolor='r',facecolor='none')
-            plt.gca().add_patch(roi)
+                # Draw histogramized image
+                ax1.set_data(img,0)
+                current_time = datetime.strftime(datetime.now(),"%Y-%m-%d_%H-%M-%S-%f")
+                ax1.title('Obtained Image (%s)'%current_time)
+                if i == 1:
+                    cmap = cm.get_cmap('jet',4)
+                    bounds = np.linspace(0,maxscale,(maxscale+1)*20+1)
+                    ax1.colorbar(cmap=colors.ListedColormap(['b','g','y','r']),boundaries=bounds,norm=colors.BoundaryNorm(bounds,cmap.N))
+                ax1.tick_params(axis='x',which='both',top=False,labeltop=False,labelbottom=True)
+                roi = patches.Rectangle((x_1,y_1),width,height,angle,linewidth=1,edgecolor='r',facecolor='none')
+                ax1.gca().add_patch(roi)
 
-            # Draw the Zoomed image in the ROI
-            plt.subplot(2,2,2)
-            img_roi = img[y_1:y_1+height+1, x_1:x_1+width+1]/maxscale
-            del img
-            gc.collect()
-            plt.matshow(img_roi,0)
-            plt.title('Region of Interest (x_1=%s, y_1=%s, w=%s, h=%s)'%(x_1,y_1,width,height))
-            if counter == 1:
-                cmap = cm.get_cmap('jet',4)
-                bounds = np.linspace(0,1,21)
-                plt.colorbar(cmap=colors.ListedColormap(['b','g','y','r']),boundaries=bounds,norm=colors.BoundaryNorm(bounds,cmap.N))
-            plt.tick_params(axis='x',which='both',top=False,labeltop=False,labelbottom=True)
+                # Draw the Zoomed image in the ROI
+                img_roi = img[y_1:y_1+height+1, x_1:x_1+width+1]/maxscale
+                del img
+                gc.collect()
+                ax2.set_data(img_roi,0)
+                ax2.title('Region of Interest (x_1=%s, y_1=%s, w=%s, h=%s)'%(x_1,y_1,width,height))
+                if i == 1:
+                    cmap = cm.get_cmap('jet',4)
+                    bounds = np.linspace(0,1,21)
+                    ax2.colorbar(cmap=colors.ListedColormap(['b','g','y','r']),boundaries=bounds,norm=colors.BoundaryNorm(bounds,cmap.N))
+                ax2.tick_params(axis='x',which='both',top=False,labeltop=False,labelbottom=True)
 
-            # Look at the time evolution of the ROI brightness
-            plt.subplot(2,2,3)
-            current_brightness = np.sum(img_roi, axis=None)
-            del img_roi
-            gc.collect()
-            time_now = time.time() - time_start
-            time_elapsed.append(time_now)
-            roi_brightness.append(current_brightness)
-            if time_now > log_time:
-               time_elapsed.popleft()
-               roi_brightness.popleft()
-               gc.collect()
-            plt.plot(time_elapsed,roi_brightness,'b-')
-            plt.xlim([time_now-log_time,time_now])
-            plt.autoscale(True,axis='y')
-            plt.xlabel('Elapsed Time [s]')
-            plt.ylabel('Brightness [a.u.]')
-            plt.title('Brightness within the ROI')
+                # Look at the time evolution of the ROI brightness
+                current_brightness = np.sum(img_roi, axis=None)
+                del img_roi
+                gc.collect()
+                time_now = time.time() - time_start
+                time_elapsed.append(time_now)
+                roi_brightness.append(current_brightness)
+                if time_now > log_time:
+                    time_elapsed.popleft()
+                    roi_brightness.popleft()
+                    gc.collect()
+                ax3.clear()
+                ax3.plot(time_elapsed,roi_brightness,'b-')
+                ax3.xlim([time_now-log_time,time_now])
+                ax3.autoscale(True,axis='y')
+                ax3.xlabel('Elapsed Time [s]')
+                ax3.ylabel('Brightness [a.u.]')
+                ax3.title('Brightness within the ROI')
             
-#            # Create a STOP button to stop acquisition
-#            plt.subplot(2,2,4)
-#            class Index(object):
-#                ind = 0
-#                def stop_acq(self, event):
-#                    self.ind += 1
-#                    raise SystemExit
-#            callback = Index()
-#            axstop = plt.axes([0.7,0.05,0.1,0.075])
-#            bstop = Button(axstop, 'STOP')
-#            bstop.on_clicked(callback.stop_acq)
+#               # Create a STOP button to stop acquisition
+#               class Index(object):
+#                   ind = 0
+#                   def stop_acq(self, event):
+#                       self.ind += 1
+#                       raise SystemExit
+#               callback = Index()
+#               axstop = ax4.axes([0.7,0.05,0.1,0.075])
+#               bstop = Button(axstop, 'STOP')
+#               bstop.on_clicked(callback.stop_acq)
 
             # Draw the Histo/Graph
+            histostream = animation.FuncAnimation(plt.gcf(), update, interval=100)
+            def close(event):
+                if event.key == 'q':
+                    plt.close(event.canvas.figure)
+                    raise SystemExit
+            cid = plt.gcf().canvas.mpl_connect("key_press_event", close)
 #            plt.tight_layout()
             plt.show()
-            plt.pause(0.1)
 
         else:
             print("Error: ", grabResult.ErrorCode, grabResult.ErrorDescription)
