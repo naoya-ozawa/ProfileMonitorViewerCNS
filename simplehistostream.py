@@ -60,6 +60,11 @@ try:
     print("Press 'q' to stop streaming")
     print()
 
+    # demonstrate some feature access
+    new_width = camera.Width.GetValue() - camera.Width.GetInc()
+    if new_width >= camera.Width.GetMin():
+        camera.Width.SetValue(new_width)
+
     # The parameter MaxNumBuffer can be used to control the count of buffers
     # allocated for grabbing. The default value of this parameter is 10.
 #    camera.MaxNumBuffer = 5
@@ -95,7 +100,7 @@ try:
     time_elapsed = deque()
     roi_brightness = deque()
 
-    # Define action in each update cycle
+    # Define each update
     def update(i, ax1_title, ax2_title, ax3_title, ax3_xlabel, ax3_ylabel):
         # Wait for an image and then retrieve it. A timeout of 5000 ms is used.
         grabResult = camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
