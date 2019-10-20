@@ -26,6 +26,8 @@ import sys
 from datetime import datetime
 import time
 import gc
+import os
+import csv
 
 # Maximum grayscale value of the image
 maxscale = 255
@@ -90,6 +92,10 @@ try:
     ax3.set_xlabel('')
     ax3.set_ylabel('')
 
+    # Prepare output directories/folders/files
+    if not os.path.exists('profile-monitor-images'):
+        os.mkdir('profile-monitor-images')
+
     # Prepare brightness lists
     time_start = time.time()
     time_elapsed = deque()
@@ -148,6 +154,12 @@ try:
             ax3.autoscale(True,axis='y')
             ax3.set_xlabel(ax3_xlabel)
             ax3.set_ylabel(ax3_ylabel)
+
+            # Save output
+            datalist = [time_now,current_brightness]
+            with open("./profile-monitor-images/pmdata.csv", "a", newline='', encoding="utf-8") as wf:
+                writer = csv.writer(wf, lineterminator="\n")
+                writer.writerow(datalist)
             
             grabResult.Release()
 
