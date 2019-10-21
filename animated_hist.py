@@ -16,9 +16,6 @@ fps = []
 dt_init_time = datetime.now()
 init_time = datetime.strftime(dt_init_time, "%Y%m%d_%H%M%S%f")
 
-mng = plt.get_current_fig_manager()
-mng.full_screen_toggle()
-
 ax1 = plt.subplot(2,2,1)
 ax2 = plt.subplot(2,2,2)
 ax3 = plt.subplot(2,2,3)
@@ -61,15 +58,21 @@ def update(i):
     ax4.plot(elapsetime, fps)
     datalist = [elapsed_time,b_now]
     plt.savefig(stm_path+"/stream_"+init_time+"_"+str(i)+".png")
-    with open(run_path+"/animation_data_"+init_time+".csv","a",newline='',encoding="utf-8") as wf:
-        writer = csv.writer(wf, lineterminator="\n")
-        writer.writerow(datalist)
+    writer.writerow(datalist)
 
+mng = plt.get_current_fig_manager()
+mng.full_screen_toggle()
+writer = csv.writer(open(run_path+"/animation_data_"+init_time+".csv","w",newline='',encoding="utf-8"))
 ani1 = animation.FuncAnimation(plt.gcf(), update, interval=50)
 
 def close(event):
     if event.key == 'q':
         plt.close(event.canvas.figure)
+#        with open(run_path+"/animation_data_"+init_time+".csv","w",newline='',encoding="utf-8") as wf:
+#            writer = csv.writer(wf, lineterminator="\n")
+#            datalist = np.array([elapsetime,brightness]).T.tolist()
+#            writer.writerows(datalist)
+
 
 cid = plt.gcf().canvas.mpl_connect("key_press_event", close)
 
