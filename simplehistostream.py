@@ -85,6 +85,10 @@ try:
     im2 = ax2.matshow(sampleGrab[y_1:y_1+height+1, x_1:x_1+width+1]/maxscale)
     ax3 = plt.subplot(2,2,3)
 
+    # Set full-size window output by default
+    mng = plt.get_current_fig_manager()
+    mng.full_screen_toggle()
+
     # Set empty titles/labels
     ax1.set_title('')
     ax2.set_title('')
@@ -92,14 +96,25 @@ try:
     ax3.set_xlabel('')
     ax3.set_ylabel('')
 
-    # Prepare output directories/folders/files
-    if not os.path.exists('profile-monitor-images'):
-        os.mkdir('profile-monitor-images')
-
     # Prepare brightness lists
     time_start = time.time()
     time_elapsed = deque()
     roi_brightness = deque()
+
+    # Prepare output directories/folders/files
+    data_path = 'profile-monitor-images'
+    if not os.path.exists(data_path):
+        os.mkdir(data_path)
+    run_path = data_path + '/' + init_time # Define init_time as a datetime type
+    if not os.path.exists(run_path):
+        os.mkdir(run_path)
+    img_path = run_path + '/images'
+    if not os.path.exists(img_path):
+        os.mkdir(img_path)
+    stm_path = run_path + '/stream'
+    if not os.path.exists(stm_path):
+        os.mkdir(stm_path)
+    writer = csv.writer(open(run_path+'/PMImage_'+init_time+'.csv','w',newline='',encoding='utf-8'))
 
     # Define action in each update cycle
     def update(i, ax1_title, ax2_title, ax3_title, ax3_xlabel, ax3_ylabel):
@@ -157,9 +172,7 @@ try:
 
             # Save output
             datalist = [time_now,current_brightness]
-            with open("./profile-monitor-images/pmdata.csv", "a", newline='', encoding="utf-8") as wf:
-                writer = csv.writer(wf, lineterminator="\n")
-                writer.writerow(datalist)
+            writer.writerow(datalist)
             
             grabResult.Release()
 
