@@ -24,7 +24,6 @@ import matplotlib.animation as animation
 
 import sys
 from datetime import datetime
-import time
 import gc
 import os
 import csv
@@ -97,7 +96,8 @@ try:
     ax3.set_ylabel('')
 
     # Prepare brightness lists
-    time_start = time.time()
+    time_start = datetime.now()
+    init_time = datetime.strftime(time_start, "%Y%m%d_%H%M%S%f")
     time_elapsed = deque()
     roi_brightness = deque()
 
@@ -105,7 +105,7 @@ try:
     data_path = 'profile-monitor-images'
     if not os.path.exists(data_path):
         os.mkdir(data_path)
-    run_path = data_path + '/' + init_time # Define init_time as a datetime type
+    run_path = data_path + '/' + init_time
     if not os.path.exists(run_path):
         os.mkdir(run_path)
     img_path = run_path + '/images'
@@ -125,10 +125,11 @@ try:
         if grabResult.GrabSucceeded():
             plt.cla()
             img = grabResult.Array
+            acquisition = datetime.now()
 
             # Draw histogramized image
-            acq_timestamp = datetime.strftime(datetime.now(),"%Y-%m-%d_%H-%M-%S-%f")
-            ax1.set_title(ax1_title + '(' + str(acq_timestamp) + ')')
+            acq_timestamp = datetime.strftime(acquisition,"%Y-%m-%d_%H-%M-%S-%f")
+            ax1.set_title(ax1_title + '(' + acq_timestamp + ')')
             im1.set_data(img)
             ax1.tick_params(axis='x',which='both',top=False,labeltop=False,labelbottom=True)
             roi = patches.Rectangle((x_1,y_1),width,height,angle,linewidth=1,edgecolor='r',facecolor='none')
@@ -147,13 +148,13 @@ try:
             current_brightness = np.sum(img_roi, axis=None)
             del img_roi
             gc.collect()
-            time_now = time.time() - time_start
-            time_elapsed.append(time_now)
+            time_from_start = (acquisition - time_start).total_seconds()
+            time_elapsed.append(time_from_start)
             roi_brightness.append(current_brightness)
-            if time_now > log_time:
+            if time_from_start > log_time:
                 deqtime = time_elapsed.popleft()
                 shotframes = len(time_elapsed)
-                deqtime = time_now - deqtime
+                deqtime = time_from_start - deqtime
                 roi_brightness.popleft()
                 gc.collect()
                 fps = float(shotframes)/deqtime
@@ -161,17 +162,19 @@ try:
             else:
                 deqtime = 0.0
                 shotframes = len(time_elapsed)
-                deqtime = time_now - deqtime
+                deqtime = time_from_start - deqtime
                 fps = float(shotframes)/deqtime
                 ax3.set_title(ax3_title + '(' + str(fps) + ' fps)')
             ax3.plot(time_elapsed,roi_brightness,'b-')
-            ax3.set_xlim([time_now-log_time,time_now])
+            ax3.set_xlim([time_from_start-log_time,time_from_start])
             ax3.autoscale(True,axis='y')
             ax3.set_xlabel(ax3_xlabel)
             ax3.set_ylabel(ax3_ylabel)
 
             # Save output
-            datalist = [time_now,current_brightness]
+            # Save original image here
+            plt.savefig(stm_path+'/stream_'+init_time+'_'+str(i)+'.png')
+            datalist = [time_from_start,current_brightness]
             writer.writerow(datalist)
             
             grabResult.Release()
