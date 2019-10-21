@@ -96,6 +96,7 @@ try:
     ax3.set_ylabel('')
 
     # Prepare brightness lists
+    # Record the starting time for acquisition
     time_start = datetime.now()
     init_time = datetime.strftime(time_start, "%Y%m%d_%H%M%S%f")
     time_elapsed = deque()
@@ -115,6 +116,7 @@ try:
     if not os.path.exists(stm_path):
         os.mkdir(stm_path)
     writer = csv.writer(open(run_path+'/PMImage_'+init_time+'.csv','w',newline='',encoding='utf-8'))
+    p_image = pylon.PylonImage()
 
     # Define action in each update cycle
     def update(i, ax1_title, ax2_title, ax3_title, ax3_xlabel, ax3_ylabel):
@@ -123,17 +125,21 @@ try:
 
         # Image grabbed successfully?
         if grabResult.GrabSucceeded():
+            # Calling AttachGrabResultBuffer creates another reference to the
+            # grab result buffer. This prevents the buffer's reuse for grabbing.
+            p_image.AttachGrabResultBuffer(grabResult)
+
+            # Clear the previous image and acquire the latest image
             plt.cla()
             img = grabResult.Array
             acquisition = datetime.now()
-
-            # Draw histogramized image
             acq_timestamp = datetime.strftime(acquisition,"%Y-%m-%d_%H-%M-%S-%f")
+
+            # Draw histogram-ized image
             ax1.set_title(ax1_title + '(' + acq_timestamp + ')')
             im1.set_data(img)
             ax1.tick_params(axis='x',which='both',top=False,labeltop=False,labelbottom=True)
             roi = patches.Rectangle((x_1,y_1),width,height,angle,linewidth=1,edgecolor='r',facecolor='none')
-#            ax1.gca().add_patch(roi)
             ax1.add_patch(roi)
 
             # Draw the Zoomed image in the ROI
@@ -172,18 +178,26 @@ try:
             ax3.set_ylabel(ax3_ylabel)
 
             # Save output
-            # Save original image here
+            p_image.Save(pylon.ImageFileFormat_Tiff, img_path+'/image_'+init_time+'_'+str(i)+'.tiff')
             plt.savefig(stm_path+'/stream_'+init_time+'_'+str(i)+'.png')
             datalist = [time_from_start,current_brightness]
             writer.writerow(datalist)
             
+            # In order to make it possible to reuse the grab result for grabbing
+            # again, we have to release the image (effectively emptying the
+            # image object).
+            p_image.Release()
             grabResult.Release()
 
         else:
             print("Error: ", grabResult.ErrorCode, grabResult.ErrorDescription)
 
-    # Draw the Histo/Graph
+
+
+    # Draw the Histo/Graph as an animation
     histostream = animation.FuncAnimation(plt.gcf(), update, interval=shoot_int, fargs = ('Obtained Image ', 'Region of Interest ', 'ROI Brightness ', 'Elapsed Time [s]', 'Brightness [a.u.]'))
+
+    # The closing method
     def close(event):
         if event.key == 'q':
             plt.close(event.canvas.figure)
@@ -192,7 +206,11 @@ try:
             time_elapsed.clear()
             roi_brightness.clear()
             raise SystemExit
+
+    # Close action
     cid = plt.gcf().canvas.mpl_connect("key_press_event", close)
+
+    # Display
     plt.show()
 
 
