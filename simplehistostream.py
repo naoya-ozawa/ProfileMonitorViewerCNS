@@ -78,15 +78,12 @@ try:
     sampleGrab = take_one_shot.Array
 
     # Create figure
-    ax1 = plt.subplot(2,2,1)
+    fig = plt.figure()
+    ax1 = fig.add_subplot(2,2,1)
     im1 = ax1.matshow(sampleGrab)
-    ax2 = plt.subplot(2,2,2)
+    ax2 = fig.add_subplot(2,2,2)
     im2 = ax2.matshow(sampleGrab[y_1:y_1+height+1, x_1:x_1+width+1]/maxscale)
-    ax3 = plt.subplot(2,2,3)
-
-    # Set full-size window output by default
-    mng = plt.get_current_fig_manager()
-    mng.full_screen_toggle()
+    ax3 = fig.add_subplot(2,2,3)
 
     # Set empty titles/labels
     ax1.set_title('')
@@ -209,6 +206,10 @@ try:
 
     # Close action
     cid = plt.gcf().canvas.mpl_connect("key_press_event", close)
+
+    # Set full-size window output by default
+    mng = plt.get_current_fig_manager()
+    mng.full_screen_toggle()
 
     # Display
     plt.show()
