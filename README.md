@@ -44,3 +44,20 @@ The script has been developed on Ubuntu 18.04 (Windows Subsystem for Linux) alon
 ## histostream.py
 
 (under construction)
+
+### Environment
+
+The aim of this script is to provide a rapid streaming system using Qt libraries. The requirements are
+
+* Python 3.6
+* Matplotlib 3.1
+* Numpy 1.7
+* [Pypylon 1.4](https://github.com/basler/pypylon)
+* [Pylon Viewer 5.2 for Linux x86](https://www.baslerweb.com/jp/sales-support/downloads/software-downloads/pylon-5-2-0-linux-x86-64-bit/)
+* [PyQt 5.13](https://pypi.org/project/PyQt5/)
+    * PySide2 did not work, although recommended on the PyQtGraph GitHub
+* [PyQtGraph 0.11](https://github.com/pyqtgraph/pyqtgraph)
+* [libxkbcommon-x11.so.0](https://stackoverflow.com/questions/57503682/matplotlib-qt-wsl-ubuntu-qt5/57503683#57503683)
+    * Solutions to any other errors of this sort could be found by running ```export QT_DEBUG_PLUGINS=1``` before running the script
+
+The script has been developed on Ubuntu 18.04 (Windows Subsystem for Linux) along with a Basler ace acA1300-60gm camera.
