@@ -39,7 +39,7 @@ height = 400
 angle = 0
 
 # Logging time for ROI brightness display (in seconds)
-log_time = 15
+log_time = 90
 
 # Number of images to be grabbed.
 #countOfImagesToGrab = 100
@@ -84,6 +84,7 @@ try:
     ax2 = fig.add_subplot(2,2,2)
     im2 = ax2.matshow(sampleGrab[y_1:y_1+height+1, x_1:x_1+width+1]/maxscale)
     ax3 = fig.add_subplot(2,2,3)
+    ax4 = fig.add_subplot(2,2,4)
 
     # Set empty titles/labels
     ax1.set_title('')
@@ -131,9 +132,10 @@ try:
             img = grabResult.Array
             acquisition = datetime.now()
             acq_timestamp = datetime.strftime(acquisition,"%Y-%m-%d_%H-%M-%S-%f")
+            save_index = init_time+'_'+str(i+1)
 
             # Draw histogram-ized image
-            ax1.set_title(ax1_title + '(' + acq_timestamp + ')')
+            ax1.set_title(ax1_title + '(' + save_index + ')')
             im1.set_data(img)
             ax1.tick_params(axis='x',which='both',top=False,labeltop=False,labelbottom=True)
             roi = patches.Rectangle((x_1,y_1),width,height,angle,linewidth=1,edgecolor='r',facecolor='none')
@@ -175,11 +177,15 @@ try:
             ax3.set_ylabel(ax3_ylabel)
 
             # Save output
-            p_image.Save(pylon.ImageFileFormat_Tiff, img_path+'/image_'+init_time+'_'+str(i)+'.tiff')
-            plt.savefig(stm_path+'/stream_'+init_time+'_'+str(i)+'.png')
-            datalist = [time_from_start,current_brightness]
+            ax4.text(0.1,0.7,'Saved data at ' + acq_timestamp + '\n as ' + save_index,size='x-large',multialignment='left')
+            ax4.text(0.1,0.4,'Elapsed time: ' + str(time_from_start) + ' s')
+            ax4.text(0.1,0.3,'ROI Brightness: ' + str(current_brightness))
+            ax4.set_axis_off()
+            p_image.Save(pylon.ImageFileFormat_Tiff, img_path+'/image_'+save_index+'.tiff')
+            plt.savefig(stm_path+'/stream_'+save_index+'.png')
+            datalist = [i+1,time_from_start,current_brightness]
             writer.writerow(datalist)
-            
+
             # In order to make it possible to reuse the grab result for grabbing
             # again, we have to release the image (effectively emptying the
             # image object).
