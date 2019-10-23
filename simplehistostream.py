@@ -32,8 +32,8 @@ import csv
 maxscale = 255
 
 # Set ROI position
-x_1 = 415 # Top left position x-coordinate
-y_1 = 345 # Top right position y-coordinate
+x_1 = 465 # Top left position x-coordinate
+y_1 = 335 # Top right position y-coordinate
 width = 400
 height = 400
 angle = 0

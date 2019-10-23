@@ -19,11 +19,12 @@ int main(int argc, char** argv){
 
 	// Choose image to display
 //	const char* imagepath = "./sample-images/Image__2019-10-02__17-35-26.png"; // Beam On
-	const char* imagepath = "./sample-images/106793-17-direct__23113341__20191011_164312788_1.tiff"; // Beam Off 
+//	const char* imagepath = "./sample-images/106793-17-direct__23113341__20191011_164312788_1.tiff"; // Beam Off 
+	const char* imagepath = "./../profile-monitor-images/20191023_102027334782/PylonViewerImages/106793-17-direct__23113341__20191023_101920953_1.tiff"; // Position calibration 2019.10.23
 
 	// Set ROI
-	int topleft_x = 415;
-	int topleft_y = 345;
+	int topleft_x = 465;
+	int topleft_y = 335;
 	int width = 400;
 	int height = 400;
 
@@ -31,6 +32,7 @@ int main(int argc, char** argv){
 	// Read image into histo
 
 	TASImage *image = new TASImage(imagepath);
+	std::cout << "Image Opened" << std::endl;
 	UInt_t yPixels = image->GetHeight();
 	UInt_t xPixels = image->GetWidth();
 	UInt_t *argb = image->GetArgbArray();
@@ -116,7 +118,9 @@ int main(int argc, char** argv){
 	l.SetTextSize(0.05);
 	l.DrawLatex(0.15,0.8,"Net Brightness in ROI");
 	l.DrawLatex(0.2,0.7,Form("%g [a.u.]",integ));
-
+	l.DrawLatex(0.15,0.6,"ROI Position");
+	l.DrawLatex(0.2,0.5,"(topleft_x, topleft_y, width, height)");
+	l.DrawLatex(0.2,0.4,Form("= (%d, %d, %d, %d)",topleft_x,topleft_y,width,height));
 
 	c1->Update();
 	c1->Modified();
