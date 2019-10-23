@@ -1,6 +1,6 @@
 # Profile Monitor Viewer using the Basler Pylon Viewer
 
-last updated 2019.10.22 by n.ozawa
+last updated 2019.10.23 by n.ozawa
 
 ## simplehistostream.py
 
@@ -40,6 +40,10 @@ The aim of this script is to be usable with minimum external libraries. The requ
 * [Pylon Viewer 5.2 for Linux x86](https://www.baslerweb.com/jp/sales-support/downloads/software-downloads/pylon-5-2-0-linux-x86-64-bit/)
 
 The script has been developed on Ubuntu 18.04 (Windows Subsystem for Linux) along with a Basler ace acA1300-60gm camera.
+
+### Example
+
+![Stream Example](./sample_stream.png)
 
 ## histostream.py
 
