@@ -99,6 +99,8 @@ try:
     init_time = datetime.strftime(time_start, "%Y%m%d_%H%M%S%f")
     time_elapsed = deque()
     roi_brightness = deque()
+    time_savefig = 30.0 # autosave figure at 30sec intervals
+    time_savebrightness = 1.0 # autosave ROI brightness at 1sec intervals
 
     # Prepare output directories/folders/files
     data_path = 'profile-monitor-images'
@@ -174,12 +176,16 @@ try:
             ax3.set_ylabel(ax3_ylabel)
 
             # Save output
-            ax4.text(0.1,0.7,'Saved data at ' + acq_timestamp + '\n as ' + save_index,size='x-large',multialignment='left')
             ax4.text(0.1,0.4,'Elapsed time: ' + str(time_from_start) + ' s')
             ax4.text(0.1,0.3,'ROI Brightness: ' + str(current_brightness))
             ax4.set_axis_off()
-            p_image.Save(pylon.ImageFileFormat_Png, img_path+'/image_'+save_index+'.png')
-            datalist = [i+1,time_from_start,current_brightness]
+            if (time_from_start > time_savefig):
+                p_image.Save(pylon.ImageFileFormat_Png, img_path+'/image_'+save_index+'.png')
+                time_savefig += 30.0
+                ax4.text(0.1,0.7,'Saved data at ' + acq_timestamp + '\n as ' + save_index,size='x-large',multialignment='left')
+            if (time_from_start > time_savebrightness):
+                datalist = [i+1,time_from_start,current_brightness]
+                time_brightness += 1.0;
             writer.writerow(datalist)
 
             # In order to make it possible to reuse the grab result for grabbing
@@ -204,6 +210,7 @@ try:
             camera.Close()
             time_elapsed.clear()
             roi_brightness.clear()
+            print("Data Saved with Index ",save_index)
             raise SystemExit
 
     # Close action
