@@ -110,9 +110,6 @@ try:
     img_path = run_path + '/images'
     if not os.path.exists(img_path):
         os.mkdir(img_path)
-    stm_path = run_path + '/stream'
-    if not os.path.exists(stm_path):
-        os.mkdir(stm_path)
     writer = csv.writer(open(run_path+'/PMImage_'+init_time+'.csv','w',newline='',encoding='utf-8'))
     p_image = pylon.PylonImage()
 
@@ -182,7 +179,6 @@ try:
             ax4.text(0.1,0.3,'ROI Brightness: ' + str(current_brightness))
             ax4.set_axis_off()
             p_image.Save(pylon.ImageFileFormat_Png, img_path+'/image_'+save_index+'.png')
-            plt.savefig(stm_path+'/stream_'+save_index+'.png')
             datalist = [i+1,time_from_start,current_brightness]
             writer.writerow(datalist)
 
