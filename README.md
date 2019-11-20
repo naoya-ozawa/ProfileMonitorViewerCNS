@@ -22,12 +22,24 @@ Each acquired image, the displayed window, and the brightness values at each tim
     └── profile-monitor-images
         └── <run-started-datetime>
                 ├── PMImage_<run-started-datetime>.csv
-                ├── stream
-                │       └── (output figures as ```png``` images)
                 └── images
-                        └── (acquired images in ```tiff``` format)
+                        └── (acquired images in ```png``` format)
 
 where ```<run-started-datetime>``` is in the form of ```YYMMDD_HHMMSSMMMMMM``` and the ```PMImage_<run-started-datetime>.csv``` stores the time elapsed from the start of the run and the ROI brightness obtained at that frame.
+
+The ```PMImage_<run-started-datetime>.csv``` file contains 3 columns of values:
+
+```
+| data index | elapsed time | brightness |
+```
+
+The ```data index``` corresponds to the loop index of the ```FuncAnimation```, which starts at 0 and increases by 1 for each acquisition. The acquired image also has a suffix of this ```data index``` in its file name, so the time and brightness of the acquired image could be found by looking at the row with the same ```data index``` value.
+
+The ```elapsed time``` corresponds to the time elapsed in seconds from the start of the streaming.
+
+The ```brightness``` corresponds to the sum of all values within the ROI of the acquired grayscale image.
+
+By default, the acquired image is saved every 30 seconds, and the brightness data is recorded every second.
 
 ### Environment
 
