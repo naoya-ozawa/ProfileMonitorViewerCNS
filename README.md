@@ -1,6 +1,6 @@
 # Profile Monitor Viewer using the Basler Pylon Viewer
 
-last updated 2019.10.23 by n.ozawa
+last updated 2019.11.20 by n.ozawa
 
 ## simplehistostream.py
 
