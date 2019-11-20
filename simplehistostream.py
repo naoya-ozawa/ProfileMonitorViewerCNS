@@ -40,6 +40,8 @@ angle = 0
 
 # Logging time for ROI brightness display (in seconds)
 log_time = 90
+time_savefig = 30 # autosave figure at 30sec intervals
+time_savebrightness = 1 # autosave ROI brightness at 1sec intervals
 
 # Number of images to be grabbed.
 #countOfImagesToGrab = 100
@@ -56,10 +58,13 @@ try:
     camera.Open()
 
     # Print the model name of the camera.
+    print("\n================")
     print("Using device ", camera.GetDeviceInfo().GetModelName())
-
+    print("Image saved every ",time_savefig," second(s)")
+    print("Brightness saved every ",time_savebrightness," second(s)")
+    print("ROI = (x_1=",x_1,", y_1=",y_1,", width=",width,", height=",height,")")
     print("Press 'q' to stop streaming")
-    print()
+    print("================\n")
 
     # The parameter MaxNumBuffer can be used to control the count of buffers
     # allocated for grabbing. The default value of this parameter is 10.
@@ -99,8 +104,6 @@ try:
     init_time = datetime.strftime(time_start, "%Y%m%d_%H%M%S%f")
     time_elapsed = deque()
     roi_brightness = deque()
-    time_savefig = 30.0 # autosave figure at 30sec intervals
-    time_savebrightness = 1.0 # autosave ROI brightness at 1sec intervals
 
     # Prepare output directories/folders/files
     data_path = 'profile-monitor-images'
@@ -116,7 +119,7 @@ try:
     p_image = pylon.PylonImage()
 
     # Define action in each update cycle
-    def update(i, ax1_title, ax2_title, ax3_title, ax3_xlabel, ax3_ylabel):
+    def update(i, ax1_title, ax2_title, ax3_title, ax3_xlabel, ax3_ylabel,time_savefig,time_savebrightness):
         # Wait for an image and then retrieve it. A timeout of 5000 ms is used.
         grabResult = camera.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
 
@@ -179,14 +182,12 @@ try:
             ax4.text(0.1,0.4,'Elapsed time: ' + str(time_from_start) + ' s')
             ax4.text(0.1,0.3,'ROI Brightness: ' + str(current_brightness))
             ax4.set_axis_off()
-            if (time_from_start > time_savefig):
+            if float(time_from_start)%float(time_savefig) < 1.0/float(fps):
                 p_image.Save(pylon.ImageFileFormat_Png, img_path+'/image_'+save_index+'.png')
-                time_savefig += 30.0
-                ax4.text(0.1,0.7,'Saved data at ' + acq_timestamp + '\n as ' + save_index,size='x-large',multialignment='left')
-            if (time_from_start > time_savebrightness):
+                ax4.text(0.1,0.6,'Saved data at ' + acq_timestamp + '\n as ' + save_index,size='x-large',multialignment='left')
+            if float(time_from_start)%float(time_savebrightness) < 1.0/float(fps):
                 datalist = [i+1,time_from_start,current_brightness]
-                time_brightness += 1.0;
-            writer.writerow(datalist)
+                writer.writerow(datalist)
 
             # In order to make it possible to reuse the grab result for grabbing
             # again, we have to release the image (effectively emptying the
@@ -200,7 +201,7 @@ try:
 
 
     # Draw the Histo/Graph as an animation
-    histostream = animation.FuncAnimation(plt.gcf(), update, interval=shoot_int, fargs = ('Obtained Image ', 'Region of Interest ', 'ROI Brightness ', 'Elapsed Time [s]', 'Brightness [a.u.]'))
+    histostream = animation.FuncAnimation(plt.gcf(), update, interval=shoot_int, fargs = ('Obtained Image ', 'Region of Interest ', 'ROI Brightness ', 'Elapsed Time [s]', 'Brightness [a.u.]', time_savefig, time_savebrightness))
 
     # The closing method
     def close(event):
@@ -210,7 +211,12 @@ try:
             camera.Close()
             time_elapsed.clear()
             roi_brightness.clear()
-            print("Data Saved with Index ",save_index)
+            print("\n================")
+            print("Simple Histo-Stream (Python+PyPylon)")
+            print("Started at ",time_start)
+            print("Stopped at ",datetime.now())
+            print("Data saved in directory: ",run_path)
+            print("================")
             raise SystemExit
 
     # Close action
