@@ -32,10 +32,10 @@ import csv
 maxscale = 255
 
 # Set ROI position
-x_1 = 465 # Top left position x-coordinate
-y_1 = 335 # Top right position y-coordinate
-width = 400
-height = 400
+x_1 = 540 # Top left position x-coordinate
+y_1 = 470 # Top right position y-coordinate
+width = 160
+height = 160
 angle = 0
 
 # Logging time for ROI brightness display (in seconds)
