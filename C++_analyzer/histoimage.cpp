@@ -21,13 +21,16 @@ int main(int argc, char** argv){
 //	const char* imagepath = "./sample-images/Image__2019-10-02__17-35-26.png"; // Beam On
 //	const char* imagepath = "./sample-images/106793-17-direct__23113341__20191011_164312788_1.tiff"; // Beam Off 
 //	const char* imagepath = "./../profile-monitor-images/20191023_102027334782/PylonViewerImages/106793-17-direct__23113341__20191023_101920953_1.tiff"; // Position calibration 2019.10.23
-	const char* imagepath = "./../pylon-viewer-images/Image__2019-11-21__14-42-07.tiff"; // Position calibration 2019.11.21
+//	const char* imagepath = "./../pylon-viewer-images/Image__2019-11-21__14-42-07.tiff"; // Position calibration 2019.11.21
+	const char* imagepath = "/mnt/c/Users/Sakelab/Desktop/Image__2020-09-04__13-46-34.tiff"; // Position calibration 2020.09.04
 
 	// Set ROI
 //	int topleft_x = 465; // 2019.10.23
-	int topleft_x = 540; // 2019.11.21
+//	int topleft_x = 540; // 2019.11.21
+	int topleft_x = 580; // 2020.09.04
 //	int topleft_y = 335; // 2019.10.23
-	int topleft_y = 470; // 2019.11.21
+//	int topleft_y = 470; // 2019.11.21
+	int topleft_y = 490; // 2020.09.04
 //	int width = 400; // 2019.10.23
 	int width = 160; // 2019.11.21
 //	int height = 400; // 2019.10.23
