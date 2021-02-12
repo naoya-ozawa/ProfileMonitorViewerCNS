@@ -1,6 +1,12 @@
 # Profile Monitor Viewer using the Basler Pylon Viewer
 
-last updated 2019.11.20 by n.ozawa
+last updated 2020.02.12 by n.ozawa
+
+## Labview streamer [NEW]
+
+A streaming program has been created using LabView 2020. 
+Note that it requires Vision Acquisition Software.
+See the [official documentation](https://knowledge.ni.com/KnowledgeArticleDetails?id=kA03q000000x0UsCAI&l=en-GB) for details.
 
 ## simplehistostream.py
 
